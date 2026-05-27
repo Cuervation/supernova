@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://supernova.local/contracts/ranking.schema.json",
+  "title": "Supernova Ranking Contract",
+  "type": "object",
+  "required": ["rankingPort"],
+  "properties": {
+    "rankingPort": {
+      "type": "object",
+      "required": ["methods", "sort"],
+      "properties": {
+        "methods": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": ["saveGameResult", "getGlobalRanking", "getUserBestResult"]
+          },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "sort": {
+          "type": "object",
+          "required": ["field", "direction"],
+          "properties": {
+            "field": { "const": "durationMs" },
+            "direction": { "const": "asc" }
+          },
+          "additionalProperties": false
+        },
+        "topGlobalLimit": { "type": "integer", "const": 10 }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

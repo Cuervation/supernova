@@ -1,0 +1,147 @@
+{
+  "project": "Supernova",
+  "updatedAt": "2026-05-27",
+  "decisions": [
+    {
+      "id": "architecture-ports-adapters",
+      "status": "accepted",
+      "decision": "Use ports/adapters architecture for auth and ranking.",
+      "reason": "Firebase is MVP infrastructure, not product architecture.",
+      "consequence": "UI, gameplay, timer and ranking must depend on AuthService, RankingService, AuthPort and RankingPort."
+    },
+    {
+      "id": "firebase-temporary-provider",
+      "status": "accepted",
+      "decision": "Place Firebase Auth and Firestore adapters under infrastructure/firebase only.",
+      "reason": "Allow later replacement by corporate, API, SSO, SQL or backend providers.",
+      "consequence": "No Firebase SDK imports outside infrastructure adapters."
+    },
+    {
+      "id": "frontend-timer-mvp",
+      "status": "accepted",
+      "decision": "Measure completion time in frontend for MVP.",
+      "reason": "Fast MVP delivery with simple gameplay loop.",
+      "consequence": "Users with technical knowledge can manipulate time; production needs server-side validation."
+    },
+    {
+      "id": "design-token-system",
+      "status": "accepted",
+      "decision": "Centralize premium visual language in design tokens.",
+      "reason": "Prevent color drift and keep brand consistency across screens.",
+      "consequence": "Components must use tokens instead of hardcoded loose colors."
+    },
+    {
+      "id": "mobile-first-responsive",
+      "status": "accepted",
+      "decision": "Build mobile-first with centered elegant desktop presentation.",
+      "reason": "Game interaction is naturally mobile-like while still needing desktop polish.",
+      "consequence": "Screens must work full-screen on mobile and avoid awkward stretching on desktop."
+    },
+    {
+      "id": "framework-react-vite",
+      "status": "accepted",
+      "decision": "Use React + TypeScript + Vite for the Supernova web app scaffold.",
+      "reason": "The repository had no framework and Vite is the simplest fit for this small responsive game.",
+      "consequence": "App entrypoint lives in src/main.tsx and screens are composed from src/App.tsx."
+    },
+    {
+      "id": "composition-root-app-providers",
+      "status": "accepted",
+      "decision": "Use src/providers/appProviders.ts as the provider composition root.",
+      "reason": "Auth and ranking providers must be replaceable without changing screens or hooks.",
+      "consequence": "Provider swaps happen in appProviders.ts; screens keep consuming hooks and services."
+    },
+    {
+      "id": "replaceable-auth-ranking-contracts",
+      "status": "accepted",
+      "decision": "Auth and ranking providers implement stable internal ports; appProviders selects firebase or mock providers.",
+      "reason": "Screens and hooks must remain provider-agnostic while Firebase stays the initial adapter.",
+      "consequence": "Provider replacement requires changing only src/providers/appProviders.ts and adding a port-compatible adapter."
+    },
+    {
+      "id": "firebase-game-results-provider",
+      "status": "accepted",
+      "decision": "Firebase Auth uses Google sign-in and Firestore stores ranking results in the gameResults collection.",
+      "reason": "Firebase is the MVP provider for login and ranking while the app depends on internal ports.",
+      "consequence": "Firestore documents use the GameResult fields; Firebase SDK imports remain isolated to src/infrastructure/firebase."
+    },
+    {
+      "id": "game-merge-pointer-events",
+      "status": "accepted",
+      "decision": "Implement merge gameplay with provider-free hooks and Pointer Events drag/drop over gameContent pairs.",
+      "reason": "The game must work with mouse and touch while keeping match logic testable outside UI.",
+      "consequence": "useMergeGame owns merge state and pure mergeRules; GameScreen only renders interaction and completion flow."
+    },
+    {
+      "id": "game-result-save-on-completion",
+      "status": "accepted",
+      "decision": "Save completed game results through RankingService from a one-shot useSaveGameResult hook and show an in-game completion panel.",
+      "reason": "Completed games must persist ranking data without coupling UI to Firebase and without double submits.",
+      "consequence": "GameScreen owns final panel state; provider calls remain behind RankingService and appProviders."
+    },
+    {
+      "id": "ranking-screen-service-only",
+      "status": "accepted",
+      "decision": "RankingScreen renders top 10 and user best using useRanking/RankingService only, with no provider imports.",
+      "reason": "Ranking UI must remain replaceable across Firebase, API, SQL or backend providers.",
+      "consequence": "Provider-specific ranking behavior remains behind RankingPort; UI handles loading, empty and error states generically."
+    },
+    {
+      "id": "firestore-mvp-security-rules",
+      "status": "accepted",
+      "decision": "Use client-create-only Firestore rules for users/{uid} and gameResults/{resultId}, with ranking reads restricted to authenticated users.",
+      "reason": "The MVP needs ranking persistence while preventing cross-user writes, result mutation, and client deletes.",
+      "consequence": "Rules validate result shape and positive durations, but frontend timer remains manipulable until server-side validation is added."
+    },
+    {
+      "id": "provider-replacement-guide",
+      "status": "accepted",
+      "decision": "Document provider replacement through docs/REPLACE_PROVIDERS.md and require provider swaps through appProviders.ts only.",
+      "reason": "Firebase must remain replaceable without touching Home, Login, Game, Result or Ranking screens.",
+      "consequence": "Future auth/ranking migrations must implement AuthPort/RankingPort adapters and run provider-leak checks plus typecheck."
+    },
+    {
+      "id": "qa-001",
+      "type": "discovery",
+      "title": "Validated Supernova MVP QA baseline",
+      "decision": "QA validation uses typecheck, architecture grep checks, JSON validation, Playwright mock-provider flow, and a manual checklist until a test framework is added.",
+      "rationale": "The project has no Vitest/Jest setup and AGENTS forbids builds after changes.",
+      "files": [
+        "docs/QA_CHECKLIST.md",
+        "src/lib/formatDate.ts",
+        "progress.md"
+      ],
+      "date": "2026-05-27"
+    },
+    {
+      "id": "qa-002",
+      "type": "bugfix",
+      "title": "Closed final QA triage debts",
+      "decision": "Final QA triage fixed feedback cleanup, result save-once consistency, provider env validation, and invalid merge IDs.",
+      "rationale": "The final QA requested closing concrete bugs and architecture debt before adding new features.",
+      "files": [
+        "src/screens/GameScreen/GameScreen.tsx",
+        "src/screens/ResultScreen/ResultScreen.tsx",
+        "src/providers/appProviders.ts",
+        "src/core/game/mergeRules.ts",
+        "docs/QA_CHECKLIST.md",
+        "progress.md"
+      ],
+      "date": "2026-05-27"
+    },
+    {
+      "id": "demo-001",
+      "type": "config",
+      "title": "Prepared internal demo package",
+      "decision": "The first internal demo uses README onboarding, docs/DEMO_SCRIPT.md, .env.example provider comments, build validation, and mock-provider responsive checks.",
+      "rationale": "The user requested a clean internal demo without adding new features.",
+      "files": [
+        "README.md",
+        "docs/DEMO_SCRIPT.md",
+        ".env.example",
+        "progress.md"
+      ],
+      "date": "2026-05-27"
+    }
+  ]
+}

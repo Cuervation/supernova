@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://supernova.local/contracts/game-result.schema.json",
+  "title": "Supernova Game Result Contract",
+  "type": "object",
+  "required": [
+    "uid",
+    "displayName",
+    "email",
+    "durationMs",
+    "durationSeconds",
+    "completedPairs",
+    "totalPairs",
+    "completed",
+    "createdAt",
+    "gameVersion",
+    "provider"
+  ],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "uid": { "type": "string", "minLength": 1 },
+    "displayName": { "type": ["string", "null"] },
+    "email": { "type": ["string", "null"], "format": "email" },
+    "durationMs": { "type": "integer", "minimum": 0 },
+    "durationSeconds": { "type": "number", "minimum": 0 },
+    "completedPairs": { "type": "integer", "minimum": 0 },
+    "totalPairs": { "type": "integer", "const": 5 },
+    "completed": { "type": "boolean", "const": true },
+    "createdAt": {
+      "description": "ISO string or provider timestamp",
+      "oneOf": [
+        { "type": "string", "format": "date-time" },
+        { "type": "object" }
+      ]
+    },
+    "gameVersion": { "type": "string", "minLength": 1 },
+    "provider": { "type": "string", "minLength": 1 }
+  },
+  "additionalProperties": false
+}

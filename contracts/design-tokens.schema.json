@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://supernova.local/contracts/design-tokens.schema.json",
+  "title": "Supernova Design Tokens Contract",
+  "type": "object",
+  "required": ["color", "font", "space", "radius", "shadow", "motion"],
+  "properties": {
+    "color": {
+      "type": "object",
+      "required": ["backgroundDeep", "purple", "magenta", "pink", "white", "glow"],
+      "additionalProperties": { "type": "string" }
+    },
+    "font": {
+      "type": "object",
+      "required": ["brand", "fallback"],
+      "properties": {
+        "brand": { "const": "--font-brand" },
+        "fallback": { "type": "string" }
+      },
+      "additionalProperties": false
+    },
+    "space": { "type": "object", "additionalProperties": { "type": "string" } },
+    "radius": { "type": "object", "additionalProperties": { "type": "string" } },
+    "shadow": { "type": "object", "additionalProperties": { "type": "string" } },
+    "motion": {
+      "type": "object",
+      "properties": {
+        "duration": { "type": "object", "additionalProperties": { "type": "string" } },
+        "easing": { "type": "object", "additionalProperties": { "type": "string" } }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

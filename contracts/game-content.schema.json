@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://supernova.local/contracts/game-content.schema.json",
+  "title": "Supernova Game Content Contract",
+  "type": "object",
+  "required": ["gameVersion", "totalPairs", "items", "pairs"],
+  "properties": {
+    "gameVersion": { "type": "string", "minLength": 1 },
+    "totalPairs": { "type": "integer", "const": 5 },
+    "items": {
+      "type": "array",
+      "minItems": 10,
+      "maxItems": 10,
+      "items": {
+        "type": "object",
+        "required": ["id", "type", "text"],
+        "properties": {
+          "id": { "type": "string" },
+          "type": { "type": "string", "enum": ["principle", "definition"] },
+          "text": { "type": "string", "minLength": 1 }
+        },
+        "additionalProperties": false
+      }
+    },
+    "pairs": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "required": ["id", "principleId", "definitionId", "finalTitle", "finalDescription"],
+        "properties": {
+          "id": { "type": "string" },
+          "principleId": { "type": "string" },
+          "definitionId": { "type": "string" },
+          "finalTitle": { "type": "string" },
+          "finalDescription": { "type": "string" }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

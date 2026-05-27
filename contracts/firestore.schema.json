@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://supernova.local/contracts/firestore.schema.json",
+  "title": "Supernova Firestore MVP Contract",
+  "type": "object",
+  "required": ["collections"],
+  "properties": {
+    "collections": {
+      "type": "object",
+      "required": ["gameResults"],
+      "properties": {
+        "gameResults": {
+          "type": "object",
+          "required": ["path", "documentFields", "indexes"],
+          "properties": {
+            "path": { "const": "gameResults/{resultId}" },
+            "documentFields": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "uid",
+                  "displayName",
+                  "email",
+                  "durationMs",
+                  "durationSeconds",
+                  "completedPairs",
+                  "totalPairs",
+                  "completed",
+                  "createdAt",
+                  "gameVersion",
+                  "provider"
+                ]
+              }
+            },
+            "indexes": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["fields"],
+                "properties": {
+                  "fields": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": ["field", "order"],
+                      "properties": {
+                        "field": { "type": "string" },
+                        "order": { "type": "string", "enum": ["asc", "desc"] }
+                      },
+                      "additionalProperties": false
+                    }
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}
