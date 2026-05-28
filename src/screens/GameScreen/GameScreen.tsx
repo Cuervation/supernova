@@ -114,10 +114,7 @@ export function GameScreen({ user, onViewRanking, onGoHome }: GameScreenProps) {
             <span className="supernova-game__instruction-icon" aria-hidden="true">
               ☝
             </span>
-            <p>
-              <strong>Arrastrá</strong> una pieza sobre su pareja correcta. También podés{" "}
-              <strong>tocar dos piezas seguidas.</strong>
-            </p>
+            <p>Arrastra para unir el principio con la definición correcta</p>
           </div>
 
           <div className="supernova-game__brand" aria-label="Supernova conectá sin límites">
@@ -150,11 +147,6 @@ export function GameScreen({ user, onViewRanking, onGoHome }: GameScreenProps) {
               ))}
             </span>
           </div>
-
-          <p className="supernova-game__tip">
-            <span aria-hidden="true">✦</span>
-            <strong>Tip:</strong> observá las palabras clave y las ideas principales.
-          </p>
         </footer>
       </div>
 

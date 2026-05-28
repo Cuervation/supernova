@@ -11,7 +11,7 @@ export const gameVisualConfig = {
   randomizeCardLayout: true,
 
   /**
-   * Máximo ángulo de rotación. Debe quedar por debajo de 30 grados.
+   * Máximo ángulo de rotación. Debe quedar por debajo de 25 grados.
    */
-  maxCardRotationDeg: 28,
+  maxCardRotationDeg: 24,
 } as const;
