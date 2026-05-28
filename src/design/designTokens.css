@@ -1584,3 +1584,101 @@ a:focus-visible {
     width: clamp(7.35rem, 45vw, 9.75rem);
   }
 }
+.user-session-bar {
+  position: fixed;
+  top: clamp(0.75rem, 2vw, 1.25rem);
+  right: clamp(0.75rem, 2vw, 1.25rem);
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  max-width: min(30rem, calc(100vw - 1.5rem));
+  color: var(--color-text-main);
+  font-size: clamp(0.72rem, 1.5vw, 0.9rem);
+  font-weight: 800;
+}
+
+.user-session-bar span {
+  max-width: 14rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  text-shadow: 0 0 1rem rgba(255, 255, 255, 0.25);
+}
+
+.user-session-bar .brand-button {
+  padding: 0.58rem 0.85rem;
+  font-size: 0.78rem;
+}
+
+.home-auth-actions {
+  display: grid;
+  justify-items: center;
+  gap: var(--space-3);
+}
+
+.home-auth-message {
+  max-width: 26rem;
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: clamp(0.82rem, 2.2vw, 1rem);
+  font-weight: 800;
+  text-align: center;
+}
+
+.supernova-game__timer {
+  position: absolute;
+  top: clamp(5.5rem, 12vh, 8.5rem);
+  right: clamp(1rem, 4vw, 4rem);
+  z-index: 5;
+  min-width: 7.5rem;
+  border: 1.5px solid rgba(255, 255, 255, 0.78);
+  border-radius: 999px;
+  padding: 0.5rem 1rem;
+  color: var(--color-text-main);
+  background: rgba(10, 7, 44, 0.36);
+  box-shadow:
+    0 0 0.9rem rgba(255, 255, 255, 0.32),
+    inset 0 0 1rem rgba(255, 255, 255, 0.04);
+  font-size: clamp(0.95rem, 2vw, 1.35rem);
+  font-weight: 950;
+  text-align: center;
+  letter-spacing: 0.04em;
+}
+
+.supernova-game__session-error {
+  position: absolute;
+  top: clamp(8.5rem, 17vh, 11rem);
+  right: clamp(1rem, 4vw, 4rem);
+  z-index: 5;
+  max-width: min(28rem, calc(100vw - 2rem));
+  margin: 0;
+  color: var(--color-error);
+  font-size: 0.9rem;
+  font-weight: 850;
+  text-align: right;
+}
+
+@media (max-width: 760px) {
+  .user-session-bar {
+    top: 0.45rem;
+    right: 0.45rem;
+  }
+
+  .user-session-bar span {
+    max-width: 8rem;
+  }
+
+  .user-session-bar .brand-button {
+    padding: 0.45rem 0.62rem;
+    font-size: 0.66rem;
+  }
+
+  .supernova-game__timer {
+    top: 4.6rem;
+    right: 0.7rem;
+    min-width: 5.6rem;
+    padding: 0.35rem 0.62rem;
+    font-size: 0.78rem;
+  }
+}

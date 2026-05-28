@@ -31,6 +31,17 @@ export class FirebaseAuthProvider implements AuthPort {
     return runtime?.auth.currentUser ? mapFirebaseUser(runtime.auth.currentUser) : null;
   }
 
+  async getIdToken(): Promise<string | null> {
+    const configError = getFirebaseConfigError();
+
+    if (configError) {
+      throw configError;
+    }
+
+    const runtime = getFirebaseRuntime();
+    return runtime?.auth.currentUser ? runtime.auth.currentUser.getIdToken() : null;
+  }
+
   async signIn(): Promise<AuthUser> {
     const configError = getFirebaseConfigError();
 

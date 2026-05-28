@@ -1,201 +1,179 @@
-# Supernova
+﻿# Supernova
 
-Supernova es un juego web responsive de merge con estética premium. La persona conecta 5 principios culturales con sus definiciones, completa la partida, guarda su tiempo y puede ver el ranking global.
+Supernova es un juego web responsive de merge. La persona inicia sesión, conecta 5 principios culturales con sus definiciones y compara su tiempo en un ranking global.
 
-## Quick start para demo interna
+## Arquitectura actual
+
+Firebase queda limitado a:
+
+- **Firebase Hosting**: host del frontend.
+- **Firebase Auth**: login con Google.
+- **Firestore**: persistencia de usuarios, sesiones y ranking.
+
+El tiempo válido para ranking lo calcula un **backend propio Node/Express** con hora del servidor. El cronómetro del frontend es solo visual.
+
+```txt
+React/Vite UI
+  -> AuthService / RankingService / GameSessionService
+    -> AuthPort / RankingPort / GameSessionPort
+      -> FirebaseAuthProvider
+      -> ApiGameSessionProvider / ApiRankingProvider
+      -> Mock providers
+
+Firebase Auth frontend -> ID Token -> Backend API -> Firebase Admin SDK -> Firestore
+```
+
+No se usan Cloud Functions.
+
+## Quick start con mocks
 
 ```powershell
 npm install
 Copy-Item .env.example .env
 $env:VITE_AUTH_PROVIDER="mock"
 $env:VITE_RANKING_PROVIDER="mock"
+$env:VITE_GAME_SESSION_PROVIDER="mock"
 npm run dev -- --host 127.0.0.1
 ```
 
 Abrí `http://127.0.0.1:5173`.
 
-> Para una demo sin depender de Firebase real, usá providers `mock`. Para validar Firebase MVP, completá `.env` y usá providers `firebase`.
+## Frontend local con Firebase Auth + API
 
-## Requisitos
-
-- Node.js 20+ recomendado.
-- npm.
-- Un proyecto Firebase solo si se quiere probar login/ranking real.
-
-## Instalación
-
-```powershell
-npm install
-```
-
-## Configuración `.env`
-
-Crear `.env` desde el ejemplo:
-
-```powershell
-Copy-Item .env.example .env
-```
-
-Variables disponibles:
+`.env` del frontend:
 
 ```env
 VITE_AUTH_PROVIDER=firebase
-VITE_RANKING_PROVIDER=firebase
+VITE_RANKING_PROVIDER=api
+VITE_GAME_SESSION_PROVIDER=api
 
-VITE_FIREBASE_API_KEY=
-VITE_FIREBASE_AUTH_DOMAIN=
-VITE_FIREBASE_PROJECT_ID=
-VITE_FIREBASE_STORAGE_BUCKET=
-VITE_FIREBASE_MESSAGING_SENDER_ID=
-VITE_FIREBASE_APP_ID=
+VITE_API_BASE_URL=http://localhost:3001
+
+VITE_FIREBASE_API_KEY=...
+VITE_FIREBASE_AUTH_DOMAIN=...
+VITE_FIREBASE_PROJECT_ID=...
+VITE_FIREBASE_STORAGE_BUCKET=...
+VITE_FIREBASE_MESSAGING_SENDER_ID=...
+VITE_FIREBASE_APP_ID=...
 ```
 
-Providers válidos:
+> No commitees `.env`. `.env.example` mantiene placeholders.
 
-| Variable | Valores | Uso |
-|---|---|---|
-| `VITE_AUTH_PROVIDER` | `firebase`, `mock` | Define el provider de autenticación. |
-| `VITE_RANKING_PROVIDER` | `firebase`, `mock` | Define el provider de ranking. |
-
-Las variables `VITE_FIREBASE_*` son configuración pública de frontend. No guardes secretos reales del servidor en variables `VITE_*`.
-
-## Correr local
-
-Con Firebase:
+Correr frontend:
 
 ```powershell
-npm run dev -- --host 127.0.0.1
+npm run dev:web -- --host 127.0.0.1
 ```
 
-Con mocks para demo rápida:
+## Backend local
+
+El backend vive en `server/`.
 
 ```powershell
-$env:VITE_AUTH_PROVIDER="mock"
-$env:VITE_RANKING_PROVIDER="mock"
-npm run dev -- --host 127.0.0.1
+cd server
+npm install
+Copy-Item .env.example .env
+npm run dev
 ```
 
-## Build
+`server/.env`:
+
+```env
+PORT=3001
+CORS_ORIGIN=http://localhost:5173,http://127.0.0.1:5173
+FIREBASE_PROJECT_ID=supernova-dev-107ec
+GOOGLE_APPLICATION_CREDENTIALS=C:\ruta\fuera\del\repo\service-account.json
+```
+
+### Firebase Admin local
+
+1. En Firebase Console, crear una service account key.
+2. Guardar el JSON **fuera del repo**.
+3. Apuntar `GOOGLE_APPLICATION_CREDENTIALS` a ese archivo.
+4. No subir JSON ni claves privadas a Git.
+
+Health check:
 
 ```powershell
-npm run build
+Invoke-RestMethod http://localhost:3001/health
 ```
 
-## Firebase MVP
+Respuesta esperada:
 
-Firebase es solo el adapter inicial. La UI no importa Firebase directamente.
-
-### Crear proyecto Firebase
-
-1. Crear un proyecto en Firebase Console.
-2. Registrar una Web App.
-3. Copiar los valores de configuración web en `.env`.
-4. Activar Authentication → Sign-in method → Google.
-5. Crear Firestore Database.
-6. Publicar `firestore.rules`.
-7. Publicar índices desde `firestore.indexes.json` si Firebase lo solicita.
-
-### Colección usada
-
-```txt
-gameResults
+```json
+{ "ok": true }
 ```
 
-Cada documento guarda:
+## Flujo de juego seguro
 
-- `uid`
-- `displayName`
-- `email`
-- `durationMs`
-- `durationSeconds`
-- `completedPairs`
-- `totalPairs`
-- `completed`
-- `createdAt`
-- `gameVersion`
-- `provider`
+1. Usuario inicia sesión con Google en frontend.
+2. Frontend obtiene Firebase ID Token desde el provider de auth.
+3. Botón **Jugar** llama `POST /api/game-sessions/start`.
+4. Backend valida token con Firebase Admin y crea `gameSessions` con `startedAt` de servidor.
+5. Frontend muestra cronómetro visual.
+6. Al completar los 5 pares, frontend llama `POST /api/game-sessions/:id/finish`.
+7. Backend valida sesión, calcula `durationMs`, guarda `gameResults` y devuelve el resultado final.
+8. Ranking lee desde `GET /api/ranking/global` y `GET /api/ranking/me`.
 
-## Cómo probar login
+## Endpoints API
 
-### Con mocks
+| Método | Ruta | Auth | Uso |
+|---|---|---|---|
+| GET | `/health` | No | Health check |
+| POST | `/api/game-sessions/start` | Sí | Inicia partida |
+| POST | `/api/game-sessions/:sessionId/finish` | Sí | Finaliza partida y guarda resultado |
+| GET | `/api/ranking/global` | No | Top ranking global |
+| GET | `/api/ranking/me` | Sí | Mejores tiempos del usuario |
 
-1. Levantar local con `VITE_AUTH_PROVIDER=mock`.
-2. Tocar `Jugar`.
-3. Ver pantalla `Ingresá para jugar`.
-4. Tocar `Continuar con Google`.
-5. Debe entrar al juego como `Jugador Supernova`.
+## Firestore
 
-### Con Firebase
+Colecciones:
 
-1. Completar `.env` con Firebase.
-2. Activar Google Auth en Firebase Console.
-3. Levantar `npm run dev -- --host 127.0.0.1`.
-4. Tocar `Jugar`.
-5. Tocar `Continuar con Google`.
-6. Completar popup de Google.
-7. Debe entrar al juego.
+- `gameSessions`
+- `gameResults`
+- `users/{uid}` si se usa perfil propio
 
-## Cómo probar el juego
+El frontend **no puede escribir** `gameResults` ni `gameSessions`; esas escrituras las hace el backend con Admin SDK.
 
-1. Entrar a Game.
-2. Ver timer y progreso `0 / 5`.
-3. Unir cada principio con su definición.
-4. Un match incorrecto no debe sumar progreso.
-5. Al completar `5 / 5`, debe aparecer `¡Vivamos nuestra Cultura!`.
-6. El timer debe detenerse.
-7. `Jugar de nuevo` debe reiniciar piezas, progreso y timer.
-
-Pares correctos:
-
-- TODO TERRENO + Porque siempre encontramos la manera de resolver.
-- FAN CLIENTE + Porque escuchamos, entendemos y nos ponemos en su lugar.
-- VALENTÍA QUE TRANSFORMA + Porque nos animamos a cambiar para crecer.
-- INSPIRAMOS Y DEJAMOS HUELLA + Porque construimos un camino que inspira y hace la diferencia.
-- EQUIPAZO + Porque sabemos trabajar juntos para alcanzar nuestros logros.
-
-## Cómo probar ranking
-
-1. Completar una partida.
-2. En el panel final, tocar `Ver ranking`.
-3. Validar que aparezca `Ranking Supernova`.
-4. Verificar top 10 ordenado por menor tiempo.
-5. Verificar que el usuario actual se resalte si corresponde.
-
-Con mocks, el ranking incluye datos semilla y el resultado de la partida local.
-
-## Cambiar providers en el futuro
-
-El punto central es:
-
-```txt
-src/providers/appProviders.ts
-```
-
-Regla arquitectónica:
-
-- Firebase vive solo en `src/infrastructure/firebase`.
-- La UI usa `AuthService` y `RankingService`.
-- Los providers deben implementar `AuthPort` o `RankingPort`.
-
-Guía completa:
-
-```txt
-docs/REPLACE_PROVIDERS.md
-```
-
-## Checks de QA
+Publicar reglas e índices:
 
 ```powershell
+firebase deploy --only firestore:rules,firestore:indexes
+```
+
+## Scripts
+
+Frontend:
+
+```powershell
+npm run dev:web
 npm run typecheck
+npm run build:web
+```
+
+Backend:
+
+```powershell
+cd server
+npm run dev
 npm run build
 ```
 
-No hay framework formal de tests configurado todavía. Usar:
+Atajos desde raíz:
 
-```txt
-docs/QA_CHECKLIST.md
+```powershell
+npm run dev:api
+npm run build:api
 ```
 
-## Limitación MVP
+## Mocks
 
-El timer se mide en frontend. Para producción real, el resultado debe validarse server-side con backend, Cloud Functions o API propia.
+Modo mock completo:
+
+```env
+VITE_AUTH_PROVIDER=mock
+VITE_RANKING_PROVIDER=mock
+VITE_GAME_SESSION_PROVIDER=mock
+```
+
+No requiere Firebase ni backend. El resultado mock se guarda en memoria para que el ranking local siga funcionando.

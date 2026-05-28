@@ -3,6 +3,7 @@ export type GameResult = {
   uid: string;
   displayName: string | null;
   email: string | null;
+  sessionId?: string;
   durationMs: number;
   durationSeconds: number;
   completedPairs: number;

@@ -5,8 +5,12 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:web": "vite",
+    "dev:api": "npm --prefix server run dev",
     "typecheck": "tsc --noEmit",
     "build": "tsc && vite build",
+    "build:web": "tsc && vite build",
+    "build:api": "npm --prefix server run build",
     "preview": "vite preview"
   },
   "dependencies": {

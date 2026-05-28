@@ -1,4 +1,4 @@
-{
+﻿{
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://supernova.local/contracts/provider-contract.schema.json",
   "title": "Supernova Provider Contract",
@@ -6,8 +6,8 @@
   "required": ["name", "kind", "implements", "location", "uiLeakAllowed"],
   "properties": {
     "name": { "type": "string", "minLength": 1 },
-    "kind": { "type": "string", "enum": ["auth", "ranking"] },
-    "implements": { "type": "string", "enum": ["AuthPort", "RankingPort"] },
+    "kind": { "type": "string", "enum": ["auth", "ranking", "gameSession"] },
+    "implements": { "type": "string", "enum": ["AuthPort", "RankingPort", "GameSessionPort"] },
     "location": { "type": "string", "pattern": "^infrastructure/" },
     "uiLeakAllowed": { "type": "boolean", "const": false },
     "replaces": { "type": ["string", "null"] },

@@ -3,6 +3,7 @@ import { gsap } from "gsap";
 import { BrandScreen } from "../../components/layout/BrandScreen";
 import { BrandButton } from "../../components/ui/BrandButton";
 import { BrandLogo } from "../../components/ui/BrandLogo";
+import type { AuthUser } from "../../core/auth/auth.types";
 import coheteIcon from "../../assets/principles/cohete.png";
 import equipazoIcon from "../../assets/principles/equipazo.png";
 import fanClienteIcon from "../../assets/principles/fancliente.png";
@@ -10,6 +11,11 @@ import huellaIcon from "../../assets/principles/huella.png";
 import todoTerrenoIcon from "../../assets/principles/todoterreno.png";
 
 type HomeScreenProps = {
+  user: AuthUser | null;
+  isAuthLoading: boolean;
+  authError: string | null;
+  playError: string | null;
+  onSignIn: () => Promise<void>;
   onPlay: () => void;
 };
 
@@ -21,7 +27,7 @@ const principleImages = [
   { alt: "", src: todoTerrenoIcon },
 ];
 
-export function HomeScreen({ onPlay }: HomeScreenProps) {
+export function HomeScreen({ user, isAuthLoading, authError, playError, onSignIn, onPlay }: HomeScreenProps) {
   const screenRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
 
@@ -131,10 +137,20 @@ export function HomeScreen({ onPlay }: HomeScreenProps) {
         <p className="brand-subtitle" data-home-subtitle>
           Conectá sin límite
         </p>
-        <div data-home-cta>
-          <BrandButton data-testid="play-button" onClick={onPlay}>
-            Jugar
-          </BrandButton>
+        <div className="home-auth-actions" data-home-cta>
+          {user ? <p className="home-auth-message">Hola, {user.displayName ?? user.email}. Ya podés jugar.</p> : null}
+          {!user ? <p className="home-auth-message">Iniciá sesión con Google para guardar tu tiempo en el ranking.</p> : null}
+          {authError ? <p className="auth-error">{authError}</p> : null}
+          {playError ? <p className="auth-error">{playError}</p> : null}
+          {user ? (
+            <BrandButton data-testid="play-button" onClick={onPlay}>
+              Jugar
+            </BrandButton>
+          ) : (
+            <BrandButton data-testid="google-login-button" disabled={isAuthLoading} onClick={onSignIn}>
+              {isAuthLoading ? "Conectando..." : "Iniciar sesión con Google"}
+            </BrandButton>
+          )}
         </div>
       </div>
     </BrandScreen>

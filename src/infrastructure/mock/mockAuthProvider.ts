@@ -19,6 +19,10 @@ export class MockAuthProvider implements AuthPort {
     return this.currentUser;
   }
 
+  async getIdToken(): Promise<string | null> {
+    return this.currentUser ? "mock-auth-token" : null;
+  }
+
   onAuthStateChanged(callback: AuthListener): Unsubscribe {
     this.listeners.add(callback);
     callback(this.currentUser);

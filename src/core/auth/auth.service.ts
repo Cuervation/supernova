@@ -8,6 +8,10 @@ export class AuthService {
     return this.authProvider.getCurrentUser();
   }
 
+  getIdToken(): Promise<string | null> {
+    return this.authProvider.getIdToken();
+  }
+
   signIn(): Promise<AuthUser> {
     return this.authProvider.signIn();
   }

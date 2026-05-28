@@ -9,14 +9,17 @@ import fanClienteFull from "../../assets/principles/fancliente__full.png";
 import huellaFull from "../../assets/principles/huella__full.png";
 import todoTerrenoFull from "../../assets/principles/todoterreno__full.png";
 import type { AuthUser } from "../../core/auth/auth.types";
+import type { GameSession } from "../../core/gameSession/game-session.types";
 import { useGameTimer } from "../../hooks/useGameTimer";
 import { useMergeGame } from "../../hooks/useMergeGame";
-import { useSaveGameResult } from "../../hooks/useSaveGameResult";
+import { appServices } from "../../providers/appProviders";
 
 type CompletedGameState = {
   durationMs: number;
   completedPairs: number;
 };
+
+type FinishStatus = "idle" | "saving" | "saved" | "error" | "skipped";
 
 const completedPairImages: Record<string, string> = {
   "pair-todo-terreno": todoTerrenoFull,
@@ -27,18 +30,26 @@ const completedPairImages: Record<string, string> = {
 };
 
 type GameScreenProps = {
-  user: AuthUser | null;
+  user: AuthUser;
+  session: GameSession;
+  onRequestNewSession: () => Promise<GameSession>;
   onViewRanking: () => void;
   onGoHome: () => void;
 };
 
-export function GameScreen({ user, onViewRanking, onGoHome }: GameScreenProps) {
+export function GameScreen({ user, session, onRequestNewSession, onViewRanking, onGoHome }: GameScreenProps) {
   const game = useMergeGame();
   const timer = useGameTimer();
-  const { error: saveError, resetSaveState, saveGameResultOnce, status: saveStatus } = useSaveGameResult();
   const [completedGame, setCompletedGame] = useState<CompletedGameState | null>(null);
+  const [finishStatus, setFinishStatus] = useState<FinishStatus>("idle");
+  const [finishError, setFinishError] = useState<string | null>(null);
+  const [activeSession, setActiveSession] = useState(session);
   const [boardLayoutSeed, setBoardLayoutSeed] = useState(() => Date.now());
   const completionReportedRef = useRef(false);
+
+  useEffect(() => {
+    setActiveSession(session);
+  }, [session]);
 
   useEffect(() => {
     timer.reset();
@@ -60,26 +71,28 @@ export function GameScreen({ user, onViewRanking, onGoHome }: GameScreenProps) {
     }
 
     completionReportedRef.current = true;
-    const finalDuration = timer.stop();
-    setCompletedGame({
-      durationMs: finalDuration,
-      completedPairs: game.completedPairs.length,
-    });
-  }, [game.completedPairs.length, game.isComplete, timer.stop]);
+    timer.stop();
+    setFinishStatus("saving");
+    setFinishError(null);
 
-  useEffect(() => {
-    if (!completedGame) {
-      return;
-    }
-
-    saveGameResultOnce({
-      user,
-      durationMs: completedGame.durationMs,
-      completedPairs: completedGame.completedPairs,
-      totalPairs: game.totalPairs,
-      gameVersion: game.content.gameVersion,
-    });
-  }, [completedGame, game.content.gameVersion, game.totalPairs, saveGameResultOnce, user]);
+    appServices.gameSessionService
+      .finishGame(activeSession.id, {
+        completedPairs: game.completedPairs.length,
+        totalPairs: game.totalPairs,
+        gameVersion: game.content.gameVersion,
+      })
+      .then(({ result }) => {
+        setCompletedGame({
+          durationMs: result.durationMs,
+          completedPairs: result.completedPairs,
+        });
+        setFinishStatus("saved");
+      })
+      .catch((caughtError) => {
+        setFinishStatus("error");
+        setFinishError(caughtError instanceof Error ? caughtError.message : "No se pudo finalizar la partida.");
+      });
+  }, [activeSession.id, game.completedPairs.length, game.content.gameVersion, game.isComplete, game.totalPairs, timer.stop]);
 
   useEffect(() => {
     window.render_game_to_text = () =>
@@ -88,6 +101,7 @@ export function GameScreen({ user, onViewRanking, onGoHome }: GameScreenProps) {
         elapsedMs: Math.round(timer.elapsedMs),
         progress: `${game.completedPairs.length}/${game.totalPairs}`,
         isComplete: game.isComplete,
+        sessionId: activeSession.id,
         availableItems: game.availableItems.map((item) => ({ id: item.id, type: item.type, text: item.text })),
         completedPairs: game.completedPairs.map((pair) => pair.id),
       });
@@ -95,15 +109,18 @@ export function GameScreen({ user, onViewRanking, onGoHome }: GameScreenProps) {
     return () => {
       delete window.render_game_to_text;
     };
-  }, [game.availableItems, game.completedPairs, game.isComplete, game.totalPairs, timer.elapsedMs]);
+  }, [activeSession.id, game.availableItems, game.completedPairs, game.isComplete, game.totalPairs, timer.elapsedMs]);
 
   const selectedItemIds = game.selectedItems.map((item) => item.id);
   const errorItemIds = game.lastFeedback?.type === "incorrect" ? game.lastFeedback.itemIds : [];
 
-  function handlePlayAgain() {
+  async function handlePlayAgain() {
+    const nextSession = await onRequestNewSession();
     completionReportedRef.current = false;
     setCompletedGame(null);
-    resetSaveState();
+    setFinishStatus("idle");
+    setFinishError(null);
+    setActiveSession(nextSession);
     setBoardLayoutSeed((currentSeed) => currentSeed + 1);
     game.resetGame();
     timer.reset();
@@ -147,6 +164,12 @@ export function GameScreen({ user, onViewRanking, onGoHome }: GameScreenProps) {
             </div>
           </header>
 
+          <div className="supernova-game__timer" aria-label="Cronómetro visual">
+            {formatVisualTimer(timer.elapsedMs)}
+          </div>
+
+          {finishStatus === "error" ? <p className="supernova-game__session-error">{finishError}</p> : null}
+
           <MergeBoard
             errorItemIds={errorItemIds}
             items={game.availableItems}
@@ -164,10 +187,19 @@ export function GameScreen({ user, onViewRanking, onGoHome }: GameScreenProps) {
           onGoHome={onGoHome}
           onPlayAgain={handlePlayAgain}
           onViewRanking={onViewRanking}
-          saveError={saveError}
-          saveStatus={saveStatus}
+          saveError={finishError}
+          saveStatus={finishStatus}
         />
       ) : null}
     </BrandScreen>
   );
+}
+
+function formatVisualTimer(durationMs: number): string {
+  const safeMs = Math.max(0, durationMs);
+  const minutes = Math.floor(safeMs / 60000);
+  const seconds = Math.floor((safeMs % 60000) / 1000);
+  const tenths = Math.floor((safeMs % 1000) / 100);
+
+  return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}.${tenths}`;
 }

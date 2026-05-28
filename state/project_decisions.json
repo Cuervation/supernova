@@ -1,6 +1,6 @@
 {
   "project": "Supernova",
-  "updatedAt": "2026-05-27",
+  "updatedAt": "2026-05-28",
   "decisions": [
     {
       "id": "architecture-ports-adapters",
@@ -142,6 +142,30 @@
         "progress.md"
       ],
       "date": "2026-05-27"
+    },
+    {
+      "id": "backend-authoritative-game-time",
+      "status": "accepted",
+      "decision": "Use a Node/Express backend as the authoritative source for game session timing and result writes.",
+      "reason": "Frontend timers can be manipulated and should only be visual for ranking integrity.",
+      "consequence": "GameScreen starts/finishes sessions through GameSessionService; backend calculates durationMs and writes gameResults with Firebase Admin SDK.",
+      "date": "2026-05-28"
+    },
+    {
+      "id": "api-ranking-provider-default",
+      "status": "accepted",
+      "decision": "Use ApiRankingProvider and ApiGameSessionProvider by default with Firebase Auth tokens.",
+      "reason": "Firebase remains Hosting/Auth/Firestore while writes move behind the backend API.",
+      "consequence": "VITE_RANKING_PROVIDER=api and VITE_GAME_SESSION_PROVIDER=api are the production-like defaults; mocks remain available for local demos.",
+      "date": "2026-05-28"
+    },
+    {
+      "id": "firestore-backend-write-only-results",
+      "status": "accepted",
+      "decision": "Block direct frontend writes to gameResults and gameSessions in Firestore rules.",
+      "reason": "Only the backend should create sessions and ranking results.",
+      "consequence": "Firestore client SDK can read allowed data but cannot persist ranking results directly; Admin SDK writes bypass rules.",
+      "date": "2026-05-28"
     }
   ]
 }

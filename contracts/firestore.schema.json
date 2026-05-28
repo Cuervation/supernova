@@ -1,14 +1,41 @@
-{
+﻿{
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://supernova.local/contracts/firestore.schema.json",
-  "title": "Supernova Firestore MVP Contract",
+  "title": "Supernova Firestore Contract",
   "type": "object",
   "required": ["collections"],
   "properties": {
     "collections": {
       "type": "object",
-      "required": ["gameResults"],
+      "required": ["gameSessions", "gameResults"],
       "properties": {
+        "gameSessions": {
+          "type": "object",
+          "required": ["path", "documentFields"],
+          "properties": {
+            "path": { "const": "gameSessions/{sessionId}" },
+            "documentFields": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "uid",
+                  "displayName",
+                  "email",
+                  "status",
+                  "startedAt",
+                  "finishedAt",
+                  "durationMs",
+                  "createdAt",
+                  "updatedAt",
+                  "gameVersion",
+                  "provider"
+                ]
+              }
+            }
+          },
+          "additionalProperties": false
+        },
         "gameResults": {
           "type": "object",
           "required": ["path", "documentFields", "indexes"],
@@ -22,6 +49,7 @@
                   "uid",
                   "displayName",
                   "email",
+                  "sessionId",
                   "durationMs",
                   "durationSeconds",
                   "completedPairs",

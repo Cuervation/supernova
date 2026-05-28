@@ -167,3 +167,22 @@ Verificar con búsqueda:
 | Adapter nuevo respetando puertos | Cero cambios en UI | Hay que mapear datos bien |
 | Cambiar contratos | Permite nuevos casos | Requiere SDD, migración y QA completo |
 | Meter SDK en pantallas | Parece rápido | Rompe arquitectura; NO se permite |
+
+## Game session provider
+
+El tiempo autoritativo ahora vive detrás de `GameSessionService` y `GameSessionPort`.
+
+Providers actuales:
+
+- `src/infrastructure/api/ApiGameSessionProvider.ts`
+- `src/infrastructure/mock/mockGameSessionProvider.ts`
+
+Para cambiar backend o proveedor de sesiones:
+
+1. Implementar `GameSessionPort`.
+2. Registrar el adapter en `src/providers/appProviders.ts`.
+3. Seleccionarlo con `VITE_GAME_SESSION_PROVIDER`.
+4. Mantener `startGame()` y `finishGame()` como fuente única para iniciar/finalizar partidas.
+5. No volver a usar el cronómetro frontend como fuente para ranking.
+
+El ranking por API se lee con `ApiRankingProvider`; la escritura del resultado ocurre en `finishGame()` del backend.
