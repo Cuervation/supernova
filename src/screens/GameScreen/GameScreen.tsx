@@ -23,6 +23,7 @@ export function GameScreen({ user, onViewRanking, onGoHome }: GameScreenProps) {
   const timer = useGameTimer();
   const { error: saveError, resetSaveState, saveGameResultOnce, status: saveStatus } = useSaveGameResult();
   const [completedGame, setCompletedGame] = useState<CompletedGameState | null>(null);
+  const [boardLayoutSeed, setBoardLayoutSeed] = useState(() => Date.now());
   const completionReportedRef = useRef(false);
 
   useEffect(() => {
@@ -90,6 +91,7 @@ export function GameScreen({ user, onViewRanking, onGoHome }: GameScreenProps) {
     completionReportedRef.current = false;
     setCompletedGame(null);
     resetSaveState();
+    setBoardLayoutSeed((currentSeed) => currentSeed + 1);
     game.resetGame();
     timer.reset();
     timer.start();
@@ -127,6 +129,7 @@ export function GameScreen({ user, onViewRanking, onGoHome }: GameScreenProps) {
         <MergeBoard
           errorItemIds={errorItemIds}
           items={game.availableItems}
+          layoutSeed={boardLayoutSeed}
           onMergeItems={game.mergeItems}
           onSelectItem={game.selectItem}
           selectedItemIds={selectedItemIds}

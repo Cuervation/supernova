@@ -1,4 +1,5 @@
-import { useState, type CSSProperties, type PointerEvent } from "react";
+import { useMemo, useState, type CSSProperties, type PointerEvent } from "react";
+import { gameVisualConfig } from "../../config/gameVisualConfig";
 import type { GameContentItem } from "../../core/game/game-content.types";
 import type { MergeResult } from "../../core/game/mergeRules";
 import { MergePiece } from "./MergePiece";
@@ -16,6 +17,7 @@ type MergeBoardProps = {
   items: GameContentItem[];
   selectedItemIds: string[];
   errorItemIds: string[];
+  layoutSeed?: number;
   onSelectItem: (itemId: string) => void;
   onMergeItems: (sourceId: string, targetId: string) => MergeResult;
 };
@@ -24,7 +26,7 @@ type BoardPieceStyle = CSSProperties & {
   "--piece-rotate"?: string;
 };
 
-const boardLayout: Record<string, BoardPieceStyle> = {
+const fixedBoardLayout: Record<string, BoardPieceStyle> = {
   "principle-todo-terreno": {
     left: "7%",
     top: "8%",
@@ -87,8 +89,71 @@ const boardLayout: Record<string, BoardPieceStyle> = {
   },
 };
 
-export function MergeBoard({ items, selectedItemIds, errorItemIds, onSelectItem, onMergeItems }: MergeBoardProps) {
+const randomLayoutSlots: BoardPieceStyle[] = [
+  { left: "6%", top: "7%", width: "24rem" },
+  { left: "35.5%", top: "7%", width: "23rem" },
+  { right: "7%", top: "8%", width: "24rem" },
+  { left: "5.5%", top: "31%", width: "23rem" },
+  { left: "39%", top: "33%", width: "22.5rem" },
+  { right: "6%", top: "31%", width: "23.5rem" },
+  { left: "4%", top: "59%", width: "23rem" },
+  { left: "29%", top: "58%", width: "24rem" },
+  { left: "55%", top: "59%", width: "22rem" },
+  { right: "2.5%", top: "55%", width: "23.5rem" },
+];
+
+function shuffle<T>(values: T[]): T[] {
+  const shuffled = [...values];
+
+  for (let index = shuffled.length - 1; index > 0; index -= 1) {
+    const swapIndex = Math.floor(Math.random() * (index + 1));
+    [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
+  }
+
+  return shuffled;
+}
+
+function getRandomRotation(): string {
+  const maxRotation = Math.min(Math.abs(gameVisualConfig.maxCardRotationDeg), 29);
+  const rotation = Math.round((Math.random() * maxRotation * 2 - maxRotation) * 10) / 10;
+  return `${rotation}deg`;
+}
+
+function createRandomBoardLayout(itemIds: string[]): Record<string, BoardPieceStyle> {
+  const shuffledSlots = shuffle(randomLayoutSlots);
+
+  return itemIds.reduce<Record<string, BoardPieceStyle>>((layout, itemId, index) => {
+    const slot = shuffledSlots[index % shuffledSlots.length];
+    layout[itemId] = {
+      ...slot,
+      "--piece-rotate": getRandomRotation(),
+    };
+    return layout;
+  }, {});
+}
+
+export function MergeBoard({
+  items,
+  selectedItemIds,
+  errorItemIds,
+  layoutSeed = 0,
+  onSelectItem,
+  onMergeItems,
+}: MergeBoardProps) {
   const [dragState, setDragState] = useState<DragState | null>(null);
+
+  /**
+   * layoutSeed cambia cuando empieza una partida nueva. Mientras el usuario juega,
+   * el layout se mantiene estable para que las cards no salten cuando se completa un par.
+   */
+  const boardLayout = useMemo(() => {
+    if (!gameVisualConfig.randomizeCardLayout) {
+      return fixedBoardLayout;
+    }
+
+    return createRandomBoardLayout(items.map((item) => item.id));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [layoutSeed]);
 
   function handlePointerDown(event: PointerEvent<HTMLButtonElement>, itemId: string) {
     event.currentTarget.setPointerCapture(event.pointerId);

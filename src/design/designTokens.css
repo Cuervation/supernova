@@ -1,6 +1,39 @@
+@font-face {
+  font-family: "Colour Sans";
+  src:
+    url("/tipografias/ColourSans.woff2") format("woff2"),
+    url("/tipografias/ColourSans.ttf") format("truetype"),
+    url("/tipografias/ColourSans.otf") format("opentype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Colour Sans";
+  src:
+    url("/tipografias/ColourSans-Bold.woff2") format("woff2"),
+    url("/tipografias/ColourSans-Bold.ttf") format("truetype"),
+    url("/tipografias/ColourSans-Bold.otf") format("opentype");
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Colour Sans";
+  src:
+    url("/tipografias/ColourSans-Light_2.woff2") format("woff2"),
+    url("/tipografias/ColourSans-Light_2.ttf") format("truetype"),
+    url("/tipografias/ColourSans-Light_2.otf") format("opentype");
+  font-weight: 300;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   --font-fallback: "Avenir Next", "Segoe UI Rounded", "Inter", system-ui, sans-serif;
-  --font-brand: "Nunito", var(--font-fallback);
+  --font-brand: "Colour Sans", var(--font-fallback);
 
   --color-bg-deep: #120023;
   --color-bg-purple: #2b0757;
@@ -964,6 +997,7 @@ a:focus-visible {
   touch-action: none;
   transform: translate3d(var(--drag-x, 0), var(--drag-y, 0), 0) rotate(var(--piece-rotate, 0deg));
   transform-origin: center;
+  will-change: transform;
   transition:
     filter var(--transition-fast),
     box-shadow var(--transition-soft),
@@ -994,6 +1028,15 @@ a:focus-visible {
     0 0 1.75rem rgba(80, 140, 255, 0.52),
     0 1.55rem 2.4rem rgba(0, 0, 0, 0.42),
     inset 0 0 2.2rem rgba(80, 140, 255, 0.08);
+}
+
+.supernova-game .merge-piece--no-icon {
+  grid-template-columns: minmax(0, 1fr) 1rem;
+  padding-left: 1.65rem;
+}
+
+.supernova-game .merge-piece--no-icon .merge-piece__content {
+  padding-left: 0.1rem;
 }
 
 .supernova-game .merge-piece--dragging {

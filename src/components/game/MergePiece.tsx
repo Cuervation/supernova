@@ -1,4 +1,5 @@
 import type { CSSProperties, PointerEvent, ReactNode } from "react";
+import { gameVisualConfig } from "../../config/gameVisualConfig";
 import type { GameContentItem } from "../../core/game/game-content.types";
 
 type MergePieceProps = {
@@ -87,6 +88,7 @@ export function MergePiece({
   onPointerDown,
   style,
 }: MergePieceProps) {
+  const shouldShowIcon = item.type === "principle" || gameVisualConfig.showDefinitionIcons;
   const pieceStyle: PieceStyle = {
     ...style,
     "--drag-x": `${dragOffset.x}px`,
@@ -98,6 +100,7 @@ export function MergePiece({
       className={[
         "merge-piece",
         `merge-piece--${item.type}`,
+        shouldShowIcon ? "" : "merge-piece--no-icon",
         isDragging ? "merge-piece--dragging" : "",
         isSelected ? "merge-piece--selected" : "",
         hasError ? "merge-piece--error" : "",
@@ -110,13 +113,15 @@ export function MergePiece({
       style={pieceStyle}
       type="button"
     >
-      <span className="merge-piece__icon" aria-hidden="true">
-        {item.type === "principle" && item.iconSrc ? (
-          <img src={item.iconSrc} alt="" draggable={false} />
-        ) : (
-          <DefinitionIcon itemId={item.id} />
-        )}
-      </span>
+      {shouldShowIcon ? (
+        <span className="merge-piece__icon" aria-hidden="true">
+          {item.type === "principle" && item.iconSrc ? (
+            <img src={item.iconSrc} alt="" draggable={false} />
+          ) : (
+            <DefinitionIcon itemId={item.id} />
+          )}
+        </span>
+      ) : null}
 
       <span className="merge-piece__content">
         <span className="merge-piece__type">{item.type === "principle" ? "PRINCIPIO" : "DEFINICIÓN"}</span>
