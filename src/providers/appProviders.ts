@@ -14,7 +14,7 @@ const activeRankingProvider = resolveProviderKey(import.meta.env.VITE_RANKING_PR
 
 function resolveProviderKey(value: string | undefined, envName: string): ProviderKey {
   if (!value) {
-    return "firebase";
+    return "mock";
   }
 
   if (value === "firebase" || value === "mock") {

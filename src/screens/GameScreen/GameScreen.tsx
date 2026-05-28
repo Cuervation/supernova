@@ -1,12 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { CompletedCard } from "../../components/game/CompletedCard";
 import { CompletedGamePanel } from "../../components/game/CompletedGamePanel";
-import { GameHeader } from "../../components/game/GameHeader";
-import { GameProgress } from "../../components/game/GameProgress";
-import { GameTimer } from "../../components/game/GameTimer";
 import { MergeBoard } from "../../components/game/MergeBoard";
 import { BrandScreen } from "../../components/layout/BrandScreen";
-import { BrandCard } from "../../components/ui/BrandCard";
 import type { AuthUser } from "../../core/auth/auth.types";
 import { useGameTimer } from "../../hooks/useGameTimer";
 import { useMergeGame } from "../../hooks/useMergeGame";
@@ -42,7 +37,7 @@ export function GameScreen({ user, onViewRanking, onGoHome }: GameScreenProps) {
 
     const timeoutId = window.setTimeout(game.clearFeedback, 650);
     return () => window.clearTimeout(timeoutId);
-  }, [game.lastFeedback]);
+  }, [game.lastFeedback, game.clearFeedback]);
 
   useEffect(() => {
     if (!game.isComplete || completionReportedRef.current) {
@@ -89,7 +84,7 @@ export function GameScreen({ user, onViewRanking, onGoHome }: GameScreenProps) {
 
   const selectedItemIds = game.selectedItems.map((item) => item.id);
   const errorItemIds = game.lastFeedback?.type === "incorrect" ? game.lastFeedback.itemIds : [];
-  const latestCompletedPairId = game.lastFeedback?.type === "correct" ? game.lastFeedback.pairId : null;
+  const completedDots = Array.from({ length: game.totalPairs }, (_, index) => index < game.completedPairs.length);
 
   function handlePlayAgain() {
     completionReportedRef.current = false;
@@ -101,56 +96,75 @@ export function GameScreen({ user, onViewRanking, onGoHome }: GameScreenProps) {
   }
 
   return (
-    <BrandScreen className="game-screen">
-      <div className="game-shell">
-        <GameHeader />
-        <BrandCard className="game-status-card">
-          <GameTimer elapsedMs={timer.elapsedMs} />
-          <GameProgress completedPairs={game.completedPairs.length} totalPairs={game.totalPairs} />
-        </BrandCard>
+    <BrandScreen className="game-screen supernova-game-screen">
+      <div className="supernova-game" aria-label="Juego de principios Supernova">
+        <div className="supernova-game__decor" aria-hidden="true">
+          <span className="supernova-game__planet supernova-game__planet--left" />
+          <span className="supernova-game__planet supernova-game__planet--right" />
+          <span className="supernova-game__planet supernova-game__planet--small" />
+          <span className="supernova-game__spark supernova-game__spark--one" />
+          <span className="supernova-game__spark supernova-game__spark--two" />
+          <span className="supernova-game__spark supernova-game__spark--three" />
+        </div>
 
-        <BrandCard>
-          <div className="screen-stack">
-            <p className="muted">Arrastrá una pieza sobre su pareja correcta. También podés tocar dos piezas seguidas.</p>
-            <MergeBoard
-              errorItemIds={errorItemIds}
-              items={game.availableItems}
-              onMergeItems={game.mergeItems}
-              onSelectItem={game.selectItem}
-              selectedItemIds={selectedItemIds}
-            />
+        <header className="supernova-game__top">
+          <div className="supernova-game__instructions">
+            <span className="supernova-game__instruction-icon" aria-hidden="true">
+              ☝
+            </span>
+            <p>
+              <strong>Arrastrá</strong> una pieza sobre su pareja correcta. También podés{" "}
+              <strong>tocar dos piezas seguidas.</strong>
+            </p>
           </div>
-        </BrandCard>
 
-        <section className="completed-zone" aria-label="Combinaciones completadas">
-          <div className="completed-zone__header">
-            <h2>Combinaciones completadas</h2>
-            <span>
-              {game.completedPairs.length} / {game.totalPairs}
+          <div className="supernova-game__brand" aria-label="Supernova conectá sin límites">
+            <span>supernova</span>
+            <small>conectá sin límites</small>
+          </div>
+        </header>
+
+        <MergeBoard
+          errorItemIds={errorItemIds}
+          items={game.availableItems}
+          onMergeItems={game.mergeItems}
+          onSelectItem={game.selectItem}
+          selectedItemIds={selectedItemIds}
+        />
+
+        <footer className="supernova-game__footer">
+          <div className="supernova-game__progress" aria-label={`Emparejados ${game.completedPairs.length} de ${game.totalPairs}`}>
+            <span className="supernova-game__progress-icon" aria-hidden="true">
+              ◎
+            </span>
+            <span className="supernova-game__progress-label">Emparejados</span>
+            <strong>
+              {game.completedPairs.length} <span>/ {game.totalPairs}</span>
+            </strong>
+            <span className="supernova-game__progress-dots" aria-hidden="true">
+              {completedDots.map((isComplete, index) => (
+                <span className={isComplete ? "is-complete" : ""} key={index} />
+              ))}
             </span>
           </div>
-          <div className="completed-zone__grid">
-            {game.completedPairs.length === 0 ? (
-              <p className="muted">Todavía no completaste combinaciones.</p>
-            ) : (
-              game.completedPairs.map((pair) => (
-                <CompletedCard isLatest={pair.id === latestCompletedPairId} key={pair.id} pair={pair} />
-              ))
-            )}
-          </div>
-        </section>
 
-        {completedGame ? (
-          <CompletedGamePanel
-            durationMs={completedGame.durationMs}
-            onGoHome={onGoHome}
-            onPlayAgain={handlePlayAgain}
-            onViewRanking={onViewRanking}
-            saveError={saveError}
-            saveStatus={saveStatus}
-          />
-        ) : null}
+          <p className="supernova-game__tip">
+            <span aria-hidden="true">✦</span>
+            <strong>Tip:</strong> observá las palabras clave y las ideas principales.
+          </p>
+        </footer>
       </div>
+
+      {completedGame ? (
+        <CompletedGamePanel
+          durationMs={completedGame.durationMs}
+          onGoHome={onGoHome}
+          onPlayAgain={handlePlayAgain}
+          onViewRanking={onViewRanking}
+          saveError={saveError}
+          saveStatus={saveStatus}
+        />
+      ) : null}
     </BrandScreen>
   );
 }

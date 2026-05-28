@@ -1,16 +1,31 @@
+import huellaIcon from "../assets/principles/huella.png";
+import fanClienteIcon from "../assets/principles/fancliente.png";
+import todoTerrenoIcon from "../assets/principles/todoterreno.png";
+import coheteIcon from "../assets/principles/cohete.png";
+import equipazoIcon from "../assets/principles/equipazo.png";
 import type { GameContent } from "../core/game/game-content.types";
 
 export const gameContent: GameContent = {
   gameVersion: "mvp-1",
   totalPairs: 5,
   items: [
-    { id: "principle-todo-terreno", type: "principle", text: "TODO TERRENO" },
+    {
+      id: "principle-todo-terreno",
+      type: "principle",
+      text: "TODO TERRENO",
+      iconSrc: todoTerrenoIcon,
+    },
     {
       id: "definition-todo-terreno",
       type: "definition",
       text: "Porque siempre encontramos la manera de resolver",
     },
-    { id: "principle-fan-cliente", type: "principle", text: "FAN CLIENTE" },
+    {
+      id: "principle-fan-cliente",
+      type: "principle",
+      text: "FAN CLIENTE",
+      iconSrc: fanClienteIcon,
+    },
     {
       id: "definition-fan-cliente",
       type: "definition",
@@ -20,6 +35,7 @@ export const gameContent: GameContent = {
       id: "principle-valentia-transforma",
       type: "principle",
       text: "VALENTÍA QUE TRANSFORMA",
+      iconSrc: coheteIcon,
     },
     {
       id: "definition-valentia-transforma",
@@ -30,13 +46,19 @@ export const gameContent: GameContent = {
       id: "principle-inspiramos-huella",
       type: "principle",
       text: "INSPIRAMOS Y DEJAMOS HUELLA",
+      iconSrc: huellaIcon,
     },
     {
       id: "definition-inspiramos-huella",
       type: "definition",
       text: "Porque construimos un camino que inspira y hace la diferencia",
     },
-    { id: "principle-equipazo", type: "principle", text: "EQUIPAZO" },
+    {
+      id: "principle-equipazo",
+      type: "principle",
+      text: "EQUIPAZO",
+      iconSrc: equipazoIcon,
+    },
     {
       id: "definition-equipazo",
       type: "definition",

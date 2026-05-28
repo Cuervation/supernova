@@ -1,4 +1,4 @@
-import { useState, type PointerEvent } from "react";
+import { useState, type CSSProperties, type PointerEvent } from "react";
 import type { GameContentItem } from "../../core/game/game-content.types";
 import type { MergeResult } from "../../core/game/mergeRules";
 import { MergePiece } from "./MergePiece";
@@ -18,6 +18,73 @@ type MergeBoardProps = {
   errorItemIds: string[];
   onSelectItem: (itemId: string) => void;
   onMergeItems: (sourceId: string, targetId: string) => MergeResult;
+};
+
+type BoardPieceStyle = CSSProperties & {
+  "--piece-rotate"?: string;
+};
+
+const boardLayout: Record<string, BoardPieceStyle> = {
+  "principle-todo-terreno": {
+    left: "7%",
+    top: "8%",
+    width: "24rem",
+    "--piece-rotate": "-5deg",
+  },
+  "definition-todo-terreno": {
+    left: "35.5%",
+    top: "8%",
+    width: "23rem",
+    "--piece-rotate": "-3deg",
+  },
+  "principle-fan-cliente": {
+    right: "7.5%",
+    top: "9%",
+    width: "24rem",
+    "--piece-rotate": "4deg",
+  },
+  "definition-fan-cliente": {
+    left: "6%",
+    top: "32%",
+    width: "23rem",
+    "--piece-rotate": "3deg",
+  },
+  "principle-valentia-transforma": {
+    left: "39%",
+    top: "34%",
+    width: "22rem",
+    "--piece-rotate": "2deg",
+  },
+  "definition-valentia-transforma": {
+    right: "6.5%",
+    top: "32%",
+    width: "23.5rem",
+    "--piece-rotate": "-1deg",
+  },
+  "principle-inspiramos-huella": {
+    left: "4%",
+    top: "60%",
+    width: "23rem",
+    "--piece-rotate": "0deg",
+  },
+  "definition-inspiramos-huella": {
+    left: "28.5%",
+    top: "59%",
+    width: "24rem",
+    "--piece-rotate": "-1deg",
+  },
+  "principle-equipazo": {
+    left: "55%",
+    top: "60%",
+    width: "22rem",
+    "--piece-rotate": "3deg",
+  },
+  "definition-equipazo": {
+    right: "2%",
+    top: "56%",
+    width: "23.5rem",
+    "--piece-rotate": "3deg",
+  },
 };
 
 export function MergeBoard({ items, selectedItemIds, errorItemIds, onSelectItem, onMergeItems }: MergeBoardProps) {
@@ -90,6 +157,7 @@ export function MergeBoard({ items, selectedItemIds, errorItemIds, onSelectItem,
             item={item}
             key={item.id}
             onPointerDown={handlePointerDown}
+            style={boardLayout[item.id]}
           />
         );
       })}

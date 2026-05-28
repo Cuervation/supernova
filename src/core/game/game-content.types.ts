@@ -4,6 +4,7 @@ export type GameContentItem = {
   id: string;
   type: GameItemType;
   text: string;
+  iconSrc?: string;
 };
 
 export type GamePair = {

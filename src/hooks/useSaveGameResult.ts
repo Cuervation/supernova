@@ -35,7 +35,6 @@ export function useSaveGameResult(): SaveGameResultState {
 
     if (!input.user) {
       setStatus("skipped");
-      setError("No pudimos guardar tu resultado porque no hay una sesión activa.");
       return;
     }
 
