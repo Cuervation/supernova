@@ -2,11 +2,24 @@ import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { BrandScreen } from "../../components/layout/BrandScreen";
 import { BrandButton } from "../../components/ui/BrandButton";
-import { BrandTitle } from "../../components/ui/BrandTitle";
+import { BrandLogo } from "../../components/ui/BrandLogo";
+import coheteIcon from "../../assets/principles/cohete.png";
+import equipazoIcon from "../../assets/principles/equipazo.png";
+import fanClienteIcon from "../../assets/principles/fancliente.png";
+import huellaIcon from "../../assets/principles/huella.png";
+import todoTerrenoIcon from "../../assets/principles/todoterreno.png";
 
 type HomeScreenProps = {
   onPlay: () => void;
 };
+
+const principleImages = [
+  { alt: "", src: coheteIcon },
+  { alt: "", src: equipazoIcon },
+  { alt: "", src: fanClienteIcon },
+  { alt: "", src: huellaIcon },
+  { alt: "", src: todoTerrenoIcon },
+];
 
 export function HomeScreen({ onPlay }: HomeScreenProps) {
   const screenRef = useRef<HTMLDivElement>(null);
@@ -76,6 +89,16 @@ export function HomeScreen({ onPlay }: HomeScreenProps) {
         stagger: 0.18,
         ease: "sine.inOut",
       });
+
+      gsap.to(".home-principle-image", {
+        y: "random(-16, 16)",
+        rotate: "random(-8, 8)",
+        duration: "random(4, 7)",
+        repeat: -1,
+        yoyo: true,
+        stagger: 0.16,
+        ease: "sine.inOut",
+      });
     }, screenRef);
 
     return () => context.revert();
@@ -90,9 +113,20 @@ export function HomeScreen({ onPlay }: HomeScreenProps) {
         <span className="home-particle home-particle--four" />
         <span className="home-particle home-particle--five" />
       </div>
+      <div aria-hidden="true" className="home-principle-images">
+        {principleImages.map((image, index) => (
+          <img
+            alt={image.alt}
+            className={`home-principle-image home-principle-image--${index + 1}`}
+            draggable={false}
+            key={image.src}
+            src={image.src}
+          />
+        ))}
+      </div>
       <div className="screen-stack" ref={heroRef}>
         <div data-home-title>
-          <BrandTitle title="Supernova" />
+          <BrandLogo className="home-logo" />
         </div>
         <p className="brand-subtitle" data-home-subtitle>
           Conectá sin límite

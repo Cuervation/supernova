@@ -2,6 +2,12 @@ import { useEffect, useRef, useState } from "react";
 import { CompletedGamePanel } from "../../components/game/CompletedGamePanel";
 import { MergeBoard } from "../../components/game/MergeBoard";
 import { BrandScreen } from "../../components/layout/BrandScreen";
+import { BrandLogo } from "../../components/ui/BrandLogo";
+import coheteFull from "../../assets/principles/cohete_full.png";
+import equipazoFull from "../../assets/principles/equipazo_full.png";
+import fanClienteFull from "../../assets/principles/fancliente__full.png";
+import huellaFull from "../../assets/principles/huella__full.png";
+import todoTerrenoFull from "../../assets/principles/todoterreno__full.png";
 import type { AuthUser } from "../../core/auth/auth.types";
 import { useGameTimer } from "../../hooks/useGameTimer";
 import { useMergeGame } from "../../hooks/useMergeGame";
@@ -10,6 +16,14 @@ import { useSaveGameResult } from "../../hooks/useSaveGameResult";
 type CompletedGameState = {
   durationMs: number;
   completedPairs: number;
+};
+
+const completedPairImages: Record<string, string> = {
+  "pair-todo-terreno": todoTerrenoFull,
+  "pair-fan-cliente": fanClienteFull,
+  "pair-valentia-transforma": coheteFull,
+  "pair-inspiramos-huella": huellaFull,
+  "pair-equipazo": equipazoFull,
 };
 
 type GameScreenProps = {
@@ -85,7 +99,6 @@ export function GameScreen({ user, onViewRanking, onGoHome }: GameScreenProps) {
 
   const selectedItemIds = game.selectedItems.map((item) => item.id);
   const errorItemIds = game.lastFeedback?.type === "incorrect" ? game.lastFeedback.itemIds : [];
-  const completedDots = Array.from({ length: game.totalPairs }, (_, index) => index < game.completedPairs.length);
 
   function handlePlayAgain() {
     completionReportedRef.current = false;
@@ -99,55 +112,50 @@ export function GameScreen({ user, onViewRanking, onGoHome }: GameScreenProps) {
 
   return (
     <BrandScreen className="game-screen supernova-game-screen">
-      <div className="supernova-game" aria-label="Juego de principios Supernova">
-        <div className="supernova-game__decor" aria-hidden="true">
-          <span className="supernova-game__planet supernova-game__planet--left" />
-          <span className="supernova-game__planet supernova-game__planet--right" />
-          <span className="supernova-game__planet supernova-game__planet--small" />
-          <span className="supernova-game__spark supernova-game__spark--one" />
-          <span className="supernova-game__spark supernova-game__spark--two" />
-          <span className="supernova-game__spark supernova-game__spark--three" />
+      <div className="supernova-game-viewport">
+        <div className="supernova-game" aria-label="Juego de principios Supernova">
+          <div className="supernova-game__decor" aria-hidden="true">
+            <span className="supernova-game__planet supernova-game__planet--left" />
+            <span className="supernova-game__planet supernova-game__planet--right" />
+            <span className="supernova-game__planet supernova-game__planet--small" />
+            <span className="supernova-game__spark supernova-game__spark--one" />
+            <span className="supernova-game__spark supernova-game__spark--two" />
+            <span className="supernova-game__spark supernova-game__spark--three" />
+          </div>
+
+          <header className="supernova-game__top">
+            <div className="supernova-game__completed-zone" aria-label="Principios completados">
+              {game.completedPairs.map((pair) => {
+                const imageSrc = completedPairImages[pair.id];
+
+                return (
+                  <div className="supernova-game__completed-item" key={pair.id}>
+                    <img
+                      alt={pair.finalTitle}
+                      className="supernova-game__completed-image"
+                      draggable={false}
+                      src={imageSrc}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="supernova-game__brand" aria-label="Supernova conectá sin límites">
+              <BrandLogo className="supernova-game__brand-logo" />
+              <small>conectá sin límites</small>
+            </div>
+          </header>
+
+          <MergeBoard
+            errorItemIds={errorItemIds}
+            items={game.availableItems}
+            layoutSeed={boardLayoutSeed}
+            onMergeItems={game.mergeItems}
+            onSelectItem={game.selectItem}
+            selectedItemIds={selectedItemIds}
+          />
         </div>
-
-        <header className="supernova-game__top">
-          <div className="supernova-game__instructions">
-            <span className="supernova-game__instruction-icon" aria-hidden="true">
-              ☝
-            </span>
-            <p>Arrastra para unir el principio con la definición correcta</p>
-          </div>
-
-          <div className="supernova-game__brand" aria-label="Supernova conectá sin límites">
-            <span>supernova</span>
-            <small>conectá sin límites</small>
-          </div>
-        </header>
-
-        <MergeBoard
-          errorItemIds={errorItemIds}
-          items={game.availableItems}
-          layoutSeed={boardLayoutSeed}
-          onMergeItems={game.mergeItems}
-          onSelectItem={game.selectItem}
-          selectedItemIds={selectedItemIds}
-        />
-
-        <footer className="supernova-game__footer">
-          <div className="supernova-game__progress" aria-label={`Emparejados ${game.completedPairs.length} de ${game.totalPairs}`}>
-            <span className="supernova-game__progress-icon" aria-hidden="true">
-              ◎
-            </span>
-            <span className="supernova-game__progress-label">Emparejados</span>
-            <strong>
-              {game.completedPairs.length} <span>/ {game.totalPairs}</span>
-            </strong>
-            <span className="supernova-game__progress-dots" aria-hidden="true">
-              {completedDots.map((isComplete, index) => (
-                <span className={isComplete ? "is-complete" : ""} key={index} />
-              ))}
-            </span>
-          </div>
-        </footer>
       </div>
 
       {completedGame ? (
