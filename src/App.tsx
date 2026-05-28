@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { AppLayout } from "./components/layout/AppLayout";
-import { BrandButton } from "./components/ui/BrandButton";
 import { gameContent } from "./content/gameContent";
 import type { GameSession } from "./core/gameSession/game-session.types";
 import { useAuth } from "./hooks/useAuth";
@@ -66,6 +65,7 @@ export function App() {
           isAuthLoading={isAuthLoading}
           onPlay={handlePlay}
           onSignIn={signIn}
+          onSignOut={handleSignOut}
           playError={playError}
           user={user}
         />
@@ -75,6 +75,7 @@ export function App() {
     if (currentScreen === "game" && user && activeSession) {
       return (
         <GameScreen
+          onClose={() => navigate("home")}
           onGoHome={() => navigate("home")}
           onRequestNewSession={startGameSession}
           onViewRanking={() => navigate("ranking")}
@@ -94,32 +95,12 @@ export function App() {
         isAuthLoading={isAuthLoading}
         onPlay={handlePlay}
         onSignIn={signIn}
+        onSignOut={handleSignOut}
         playError={playError}
         user={user}
       />
     );
   }
 
-  return (
-    <AppLayout>
-      {user ? <UserSessionBar displayName={user.displayName ?? user.email ?? "Jugador"} onSignOut={handleSignOut} /> : null}
-      {renderScreen()}
-    </AppLayout>
-  );
-}
-
-type UserSessionBarProps = {
-  displayName: string;
-  onSignOut: () => void;
-};
-
-function UserSessionBar({ displayName, onSignOut }: UserSessionBarProps) {
-  return (
-    <div className="user-session-bar">
-      <span>{displayName}</span>
-      <BrandButton data-testid="logout-button" onClick={onSignOut} variant="secondary">
-        Cerrar sesión
-      </BrandButton>
-    </div>
-  );
+  return <AppLayout>{renderScreen()}</AppLayout>;
 }

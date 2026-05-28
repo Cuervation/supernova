@@ -16,6 +16,7 @@ type HomeScreenProps = {
   authError: string | null;
   playError: string | null;
   onSignIn: () => Promise<void>;
+  onSignOut: () => Promise<void>;
   onPlay: () => void;
 };
 
@@ -27,7 +28,7 @@ const principleImages = [
   { alt: "", src: todoTerrenoIcon },
 ];
 
-export function HomeScreen({ user, isAuthLoading, authError, playError, onSignIn, onPlay }: HomeScreenProps) {
+export function HomeScreen({ user, isAuthLoading, authError, playError, onSignIn, onSignOut, onPlay }: HomeScreenProps) {
   const screenRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
 
@@ -143,9 +144,14 @@ export function HomeScreen({ user, isAuthLoading, authError, playError, onSignIn
           {authError ? <p className="auth-error">{authError}</p> : null}
           {playError ? <p className="auth-error">{playError}</p> : null}
           {user ? (
-            <BrandButton data-testid="play-button" onClick={onPlay}>
-              Jugar
-            </BrandButton>
+            <>
+              <BrandButton data-testid="play-button" onClick={onPlay}>
+                Jugar
+              </BrandButton>
+              <BrandButton data-testid="logout-button" onClick={onSignOut} variant="secondary">
+                Cerrar sesión
+              </BrandButton>
+            </>
           ) : (
             <BrandButton data-testid="google-login-button" disabled={isAuthLoading} onClick={onSignIn}>
               {isAuthLoading ? "Conectando..." : "Iniciar sesión con Google"}

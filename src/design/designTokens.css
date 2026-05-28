@@ -1017,38 +1017,45 @@ a:focus-visible {
 .supernova-game__top {
   position: relative;
   z-index: 4;
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 2rem;
-}
-
-.supernova-game__brand {
   display: grid;
-  justify-items: center;
-  min-width: 18rem;
-  padding-top: 0.7rem;
-  text-align: center;
-  text-shadow: 0 0 1.5rem rgba(255, 255, 255, 0.2);
+  gap: 1rem;
 }
 
-.supernova-game__brand-logo {
-  --brand-logo-width: clamp(12rem, 21vw, 21rem);
-  --brand-logo-shift-x: 2.2%;
-  --brand-logo-shift-y: -4.3%;
+.supernova-game__session-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content;
+  align-items: start;
+  gap: 0.75rem;
+  width: 100%;
 }
 
-.supernova-game__brand span {
-  font-size: 4.4rem;
-  font-weight: 300;
-  line-height: 0.82;
-  letter-spacing: 0.01em;
+.supernova-game__session-stack {
+  display: grid;
+  justify-items: end;
+  gap: 0.45rem;
 }
 
-.supernova-game__brand small {
-  margin-top: 0.15rem;
-  font-size: 1.35rem;
-  font-weight: 500;
+.supernova-game__player-name {
+  min-width: 0;
+  padding-top: 0.22rem;
+  color: var(--color-text-main);
+  font-size: clamp(0.95rem, 1.9vw, 1.2rem);
+  font-weight: 900;
+  line-height: 1;
+  text-shadow: 0 0 1rem rgba(255, 255, 255, 0.22);
+  text-align: right;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  align-self: start;
+}
+
+.supernova-game__close-button {
+  width: calc(7.5rem + 5px);
+  min-width: calc(7.5rem + 5px);
+  height: 2.35rem;
+  padding: 0.5rem 1rem;
+  font-size: clamp(0.95rem, 2vw, 1.35rem);
+  line-height: 1;
 }
 
 .supernova-game .merge-board {
@@ -1492,31 +1499,6 @@ a:focus-visible {
     gap: 0.55rem;
   }
 
-  .supernova-game__brand {
-    width: 100%;
-    justify-items: center;
-    min-width: 7.85rem;
-    padding-top: 0.2rem;
-    text-align: center;
-    justify-self: center;
-  }
-
-  .supernova-game__brand-logo {
-    --brand-logo-width: 7.85rem;
-    --brand-logo-shift-x: 2.2%;
-    --brand-logo-shift-y: -4.3%;
-    margin-inline: auto;
-  }
-
-  .supernova-game__brand span {
-    font-size: 1.9rem;
-  }
-
-  .supernova-game__brand small {
-    margin-top: 0.08rem;
-    font-size: 0.66rem;
-  }
-
   .supernova-game .merge-board {
     margin-top: 0.45rem;
   }
@@ -1576,7 +1558,7 @@ a:focus-visible {
   .supernova-game__completed-zone {
     gap: 0.25rem;
     width: 100%;
-    padding-top: 0.45rem;
+    padding-top: 0.22rem;
   }
 
   .supernova-game__completed-item {
@@ -1584,33 +1566,6 @@ a:focus-visible {
     width: clamp(7.35rem, 45vw, 9.75rem);
   }
 }
-.user-session-bar {
-  position: fixed;
-  top: clamp(0.75rem, 2vw, 1.25rem);
-  right: clamp(0.75rem, 2vw, 1.25rem);
-  z-index: var(--z-modal);
-  display: flex;
-  align-items: center;
-  gap: var(--space-2);
-  max-width: min(30rem, calc(100vw - 1.5rem));
-  color: var(--color-text-main);
-  font-size: clamp(0.72rem, 1.5vw, 0.9rem);
-  font-weight: 800;
-}
-
-.user-session-bar span {
-  max-width: 14rem;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  text-shadow: 0 0 1rem rgba(255, 255, 255, 0.25);
-}
-
-.user-session-bar .brand-button {
-  padding: 0.58rem 0.85rem;
-  font-size: 0.78rem;
-}
-
 .home-auth-actions {
   display: grid;
   justify-items: center;
@@ -1627,11 +1582,10 @@ a:focus-visible {
 }
 
 .supernova-game__timer {
-  position: absolute;
-  top: clamp(5.5rem, 12vh, 8.5rem);
-  right: clamp(1rem, 4vw, 4rem);
-  z-index: 5;
-  min-width: 7.5rem;
+  box-sizing: border-box;
+  width: calc(7.5rem + 5px);
+  min-width: calc(7.5rem + 5px);
+  height: 2.35rem;
   border: 1.5px solid rgba(255, 255, 255, 0.78);
   border-radius: 999px;
   padding: 0.5rem 1rem;
@@ -1644,6 +1598,9 @@ a:focus-visible {
   font-weight: 950;
   text-align: center;
   letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+  line-height: 1;
 }
 
 .supernova-game__session-error {
@@ -1660,24 +1617,34 @@ a:focus-visible {
 }
 
 @media (max-width: 760px) {
-  .user-session-bar {
-    top: 0.45rem;
-    right: 0.45rem;
+  .supernova-game__top {
+    gap: 0.75rem;
   }
 
-  .user-session-bar span {
-    max-width: 8rem;
+  .supernova-game__session-row {
+    gap: 0.5rem;
   }
 
-  .user-session-bar .brand-button {
-    padding: 0.45rem 0.62rem;
-    font-size: 0.66rem;
+  .supernova-game__player-name {
+    padding-top: 0.14rem;
+    font-size: 0.82rem;
   }
 
+  .supernova-game__session-stack {
+    gap: 0.28rem;
+  }
+
+  .supernova-game__close-button {
+    width: calc(5.6rem + 5px);
+    min-width: calc(5.6rem + 5px);
+    height: 1.78rem;
+    padding: 0.35rem 0.62rem;
+    font-size: 0.78rem;
+  }
   .supernova-game__timer {
-    top: 4.6rem;
-    right: 0.7rem;
-    min-width: 5.6rem;
+    width: calc(5.6rem + 5px);
+    min-width: calc(5.6rem + 5px);
+    height: 1.78rem;
     padding: 0.35rem 0.62rem;
     font-size: 0.78rem;
   }

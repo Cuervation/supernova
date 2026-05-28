@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { CompletedGamePanel } from "../../components/game/CompletedGamePanel";
 import { MergeBoard } from "../../components/game/MergeBoard";
 import { BrandScreen } from "../../components/layout/BrandScreen";
-import { BrandLogo } from "../../components/ui/BrandLogo";
+import { BrandButton } from "../../components/ui/BrandButton";
 import coheteFull from "../../assets/principles/cohete_full.png";
 import equipazoFull from "../../assets/principles/equipazo_full.png";
 import fanClienteFull from "../../assets/principles/fancliente__full.png";
@@ -35,9 +35,10 @@ type GameScreenProps = {
   onRequestNewSession: () => Promise<GameSession>;
   onViewRanking: () => void;
   onGoHome: () => void;
+  onClose: () => void;
 };
 
-export function GameScreen({ user, session, onRequestNewSession, onViewRanking, onGoHome }: GameScreenProps) {
+export function GameScreen({ user, session, onRequestNewSession, onViewRanking, onGoHome, onClose }: GameScreenProps) {
   const game = useMergeGame();
   const timer = useGameTimer();
   const [completedGame, setCompletedGame] = useState<CompletedGameState | null>(null);
@@ -141,6 +142,28 @@ export function GameScreen({ user, session, onRequestNewSession, onViewRanking, 
           </div>
 
           <header className="supernova-game__top">
+            <div className="supernova-game__session-row">
+              <div className="supernova-game__player-name" title={user.displayName ?? user.email ?? "Jugador"}>
+                {user.displayName ?? user.email ?? "Jugador"}
+              </div>
+
+              <div className="supernova-game__session-stack">
+                <BrandButton
+                  className="supernova-game__close-button"
+                  data-testid="game-close-button"
+                  onClick={onClose}
+                  variant="secondary"
+                  fullWidth={false}
+                >
+                  Cerrar
+                </BrandButton>
+
+                <div className="supernova-game__timer" aria-label="Cron??metro visual">
+                  {formatVisualTimer(timer.elapsedMs)}
+                </div>
+              </div>
+            </div>
+
             <div className="supernova-game__completed-zone" aria-label="Principios completados">
               {game.completedPairs.map((pair) => {
                 const imageSrc = completedPairImages[pair.id];
@@ -157,16 +180,7 @@ export function GameScreen({ user, session, onRequestNewSession, onViewRanking, 
                 );
               })}
             </div>
-
-            <div className="supernova-game__brand" aria-label="Supernova conectá sin límites">
-              <BrandLogo className="supernova-game__brand-logo" />
-              <small>conectá sin límites</small>
-            </div>
           </header>
-
-          <div className="supernova-game__timer" aria-label="Cronómetro visual">
-            {formatVisualTimer(timer.elapsedMs)}
-          </div>
 
           {finishStatus === "error" ? <p className="supernova-game__session-error">{finishError}</p> : null}
 
