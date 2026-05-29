@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { AppLayout } from "./components/layout/AppLayout";
 import { GameCountdownOverlay } from "./components/tutorial/GameCountdownOverlay";
 import { TutorialMergeModal } from "./components/tutorial/TutorialMergeModal";
@@ -22,8 +22,10 @@ export function App() {
   const [playError, setPlayError] = useState<string | null>(null);
   const [showTutorialModal, setShowTutorialModal] = useState(false);
   const [showCountdown, setShowCountdown] = useState(false);
+  const [isPreparingGame, setIsPreparingGame] = useState(false);
   const [tutorialSource, setTutorialSource] = useState<TutorialSource>(null);
   const [tutorialSeen, setTutorialSeen] = useState(false);
+  const isPreparingGameRef = useRef(false);
 
   useEffect(() => {
     try {
@@ -40,6 +42,8 @@ export function App() {
       setShowTutorialModal(false);
       setShowCountdown(false);
       setTutorialSource(null);
+      setIsPreparingGame(false);
+      isPreparingGameRef.current = false;
     }
   }, [user]);
 
@@ -50,28 +54,46 @@ export function App() {
   async function startGameSession(): Promise<GameSession> {
     setPlayError(null);
     const session = await appServices.gameSessionService.startGame({ gameVersion: gameContent.gameVersion });
-    setActiveSession(session);
     return session;
   }
 
-  function openTutorial(source: TutorialSource) {
+  async function prepareGameAndShowCountdown() {
+    if (isPreparingGameRef.current || showCountdown) {
+      return;
+    }
+
+    isPreparingGameRef.current = true;
+    setIsPreparingGame(true);
     setPlayError(null);
-    setTutorialSource(source);
-    setShowTutorialModal(true);
+    setShowTutorialModal(false);
+
+    try {
+      const session = await startGameSession();
+      setActiveSession(session);
+      setShowCountdown(true);
+    } catch (caughtError) {
+      setPlayError(caughtError instanceof Error ? caughtError.message : "No se pudo iniciar la partida.");
+      navigate("home");
+    } finally {
+      setIsPreparingGame(false);
+      isPreparingGameRef.current = false;
+    }
   }
 
   async function handlePlay() {
-    if (!user) {
+    if (!user || isPreparingGameRef.current || showCountdown) {
       return;
     }
 
     if (tutorialSeen) {
       setTutorialSource("play");
-      setShowCountdown(true);
+      void prepareGameAndShowCountdown();
       return;
     }
 
-    openTutorial("play");
+    setPlayError(null);
+    setTutorialSource("play");
+    setShowTutorialModal(true);
   }
 
   function handleViewTutorial() {
@@ -79,7 +101,9 @@ export function App() {
       return;
     }
 
-    openTutorial("manual");
+    setPlayError(null);
+    setTutorialSource("manual");
+    setShowTutorialModal(true);
   }
 
   function handleTutorialOk() {
@@ -92,7 +116,7 @@ export function App() {
 
       setTutorialSeen(true);
       setShowTutorialModal(false);
-      setShowCountdown(true);
+      void prepareGameAndShowCountdown();
       return;
     }
 
@@ -100,16 +124,9 @@ export function App() {
     setTutorialSource(null);
   }
 
-  const handleCountdownComplete = useCallback(async () => {
+  const handleCountdownComplete = useCallback(() => {
+    navigate("game");
     setShowCountdown(false);
-
-    try {
-      await startGameSession();
-      navigate("game");
-    } catch (caughtError) {
-      setPlayError(caughtError instanceof Error ? caughtError.message : "No se pudo iniciar la partida.");
-      navigate("home");
-    }
   }, []);
 
   const handleTutorialCancel = useCallback(() => {
@@ -149,7 +166,11 @@ export function App() {
         <GameScreen
           onClose={() => navigate("home")}
           onGoHome={() => navigate("home")}
-          onRequestNewSession={startGameSession}
+          onRequestNewSession={async () => {
+            const session = await startGameSession();
+            setActiveSession(session);
+            return session;
+          }}
           onViewRanking={() => navigate("ranking")}
           session={activeSession}
           user={user}

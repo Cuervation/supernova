@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+﻿import { useEffect, useRef } from "react";
 import { gsap } from "gsap";
 import { BrandScreen } from "../../components/layout/BrandScreen";
 import { BrandButton } from "../../components/ui/BrandButton";
@@ -137,11 +137,9 @@ export function HomeScreen({ user, isAuthLoading, authError, playError, onSignIn
           <BrandLogo className="home-logo" />
         </div>
         <p className="brand-subtitle" data-home-subtitle>
-          Conect? sin l?mite
+          Conectá sin límite
         </p>
         <div className="home-auth-actions" data-home-cta>
-          {user ? <p className="home-auth-message">Hola, {user.displayName ?? user.email}. Ya pod?s jugar.</p> : null}
-          {!user ? <p className="home-auth-message">Inici? sesi?n con Google para guardar tu tiempo en el ranking.</p> : null}
           {authError ? <p className="auth-error">{authError}</p> : null}
           {playError ? <p className="auth-error">{playError}</p> : null}
           {user ? (
@@ -155,16 +153,30 @@ export function HomeScreen({ user, isAuthLoading, authError, playError, onSignIn
                 </BrandButton>
               ) : null}
               <BrandButton data-testid="logout-button" onClick={onSignOut} variant="secondary">
-                Cerrar sesi?n
+                Cerrar sesión
               </BrandButton>
             </>
           ) : (
-            <BrandButton data-testid="google-login-button" disabled={isAuthLoading} onClick={onSignIn}>
-              {isAuthLoading ? "Conectando..." : "Iniciar sesi?n con Google"}
+            <BrandButton className="home-auth-google-button" data-testid="google-login-button" disabled={isAuthLoading} onClick={onSignIn}>
+              <span className="home-auth-google-button__icon" aria-hidden="true">
+                <GoogleIcon />
+              </span>
+              <span className="home-auth-google-button__label">{isAuthLoading ? "Conectando..." : "Iniciar sesión con Google"}</span>
             </BrandButton>
           )}
         </div>
       </div>
     </BrandScreen>
+  );
+}
+
+function GoogleIcon() {
+  return (
+    <svg viewBox="0 0 48 48" className="home-auth-google-button__svg" aria-hidden="true">
+      <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.6 33.5 29.3 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.2 6.1 29.4 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.2-.1-2.3-.4-3.5Z" />
+      <path fill="#FF3D00" d="M6.3 14.7 12.9 19.6C14.7 15.1 19 12 24 12c3.1 0 5.9 1.2 8 3.1l5.7-5.7C34.2 6.1 29.4 4 24 4 16 4 9 8.5 6.3 14.7Z" />
+      <path fill="#4CAF50" d="m24 44c5.3 0 10.2-2 13.9-5.3l-6.4-5.3C29.6 35.2 27 36 24 36c-5.3 0-9.8-3.5-11.5-8.2l-6.6 5.1C8.6 39.8 15.6 44 24 44Z" />
+      <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-1.2 3.6-3.7 6.4-7 8.1l.1-.1 6.4 5.3C36.3 41.3 44 36 44 24c0-1.2-.1-2.3-.4-3.5Z" />
+    </svg>
   );
 }
