@@ -18,6 +18,7 @@ type HomeScreenProps = {
   onSignIn: () => Promise<void>;
   onSignOut: () => Promise<void>;
   onPlay: () => void;
+  onViewTutorial?: () => void;
 };
 
 const principleImages = [
@@ -28,7 +29,7 @@ const principleImages = [
   { alt: "", src: todoTerrenoIcon },
 ];
 
-export function HomeScreen({ user, isAuthLoading, authError, playError, onSignIn, onSignOut, onPlay }: HomeScreenProps) {
+export function HomeScreen({ user, isAuthLoading, authError, playError, onSignIn, onSignOut, onPlay, onViewTutorial }: HomeScreenProps) {
   const screenRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLDivElement>(null);
 
@@ -136,11 +137,11 @@ export function HomeScreen({ user, isAuthLoading, authError, playError, onSignIn
           <BrandLogo className="home-logo" />
         </div>
         <p className="brand-subtitle" data-home-subtitle>
-          Conectá sin límite
+          Conect? sin l?mite
         </p>
         <div className="home-auth-actions" data-home-cta>
-          {user ? <p className="home-auth-message">Hola, {user.displayName ?? user.email}. Ya podés jugar.</p> : null}
-          {!user ? <p className="home-auth-message">Iniciá sesión con Google para guardar tu tiempo en el ranking.</p> : null}
+          {user ? <p className="home-auth-message">Hola, {user.displayName ?? user.email}. Ya pod?s jugar.</p> : null}
+          {!user ? <p className="home-auth-message">Inici? sesi?n con Google para guardar tu tiempo en el ranking.</p> : null}
           {authError ? <p className="auth-error">{authError}</p> : null}
           {playError ? <p className="auth-error">{playError}</p> : null}
           {user ? (
@@ -148,13 +149,18 @@ export function HomeScreen({ user, isAuthLoading, authError, playError, onSignIn
               <BrandButton data-testid="play-button" onClick={onPlay}>
                 Jugar
               </BrandButton>
+              {onViewTutorial ? (
+                <BrandButton data-testid="view-tutorial-button" onClick={onViewTutorial} variant="secondary">
+                  Ver tutorial
+                </BrandButton>
+              ) : null}
               <BrandButton data-testid="logout-button" onClick={onSignOut} variant="secondary">
-                Cerrar sesión
+                Cerrar sesi?n
               </BrandButton>
             </>
           ) : (
             <BrandButton data-testid="google-login-button" disabled={isAuthLoading} onClick={onSignIn}>
-              {isAuthLoading ? "Conectando..." : "Iniciar sesión con Google"}
+              {isAuthLoading ? "Conectando..." : "Iniciar sesi?n con Google"}
             </BrandButton>
           )}
         </div>
