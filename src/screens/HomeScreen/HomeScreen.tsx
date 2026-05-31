@@ -48,25 +48,22 @@ export function HomeScreen({ user, isAuthLoading, authError, playError, onSignIn
           duration: 0.8,
         })
         .from(
-          "[data-home-title]",
+          "[data-home-logo]",
           {
             opacity: 0,
-            scale: 0.9,
-            y: 18,
-            filter: "blur(0.8rem)",
-            textShadow: "0 0 0rem var(--color-orb-magenta)",
-            duration: 0.9,
+            y: -12,
+            duration: 0.85,
           },
           "-=0.35",
         )
         .from(
-          "[data-home-subtitle]",
+          "[data-home-copy]",
           {
             opacity: 0,
             y: 14,
-            duration: 0.55,
+            duration: 0.7,
           },
-          "-=0.35",
+          "-=0.45",
         )
         .from(
           "[data-home-cta]",
@@ -132,20 +129,31 @@ export function HomeScreen({ user, isAuthLoading, authError, playError, onSignIn
           />
         ))}
       </div>
-      <div className="screen-stack" ref={heroRef}>
-        <div data-home-title>
-          <BrandLogo className="home-logo" />
-        </div>
-        <p className="brand-subtitle" data-home-subtitle>
-          Conectá sin límite
-        </p>
+
+      <div className="home-logo-anchor" data-home-logo>
+        <BrandLogo className="home-logo home-logo--header" />
+      </div>
+
+      <div className="screen-stack home-hero" ref={heroRef}>
+        <section className="home-hero-copy" data-home-copy>
+          <p className="home-hero-kicker">
+            En Movistar creemos que la cultura
+            <br />
+            no está escrita en un manual, <strong>se vive.</strong>
+          </p>
+          <p className="home-hero-main-line">
+            Por eso definimos nuestros <span className="home-hero-highlight">principios culturales,</span>
+          </p>
+          <p className="home-hero-closing">que son nuestra forma de ser:</p>
+        </section>
+
         <div className="home-auth-actions" data-home-cta>
           {authError ? <p className="auth-error">{authError}</p> : null}
           {playError ? <p className="auth-error">{playError}</p> : null}
           {user ? (
             <>
               <BrandButton data-testid="play-button" onClick={onPlay}>
-                Jugar
+                Jugá y descubrilos!
               </BrandButton>
               {onViewTutorial ? (
                 <BrandButton data-testid="view-tutorial-button" onClick={onViewTutorial} variant="secondary">
@@ -161,7 +169,7 @@ export function HomeScreen({ user, isAuthLoading, authError, playError, onSignIn
               <span className="home-auth-google-button__icon" aria-hidden="true">
                 <GoogleIcon />
               </span>
-              <span className="home-auth-google-button__label">{isAuthLoading ? "Conectando..." : "Iniciar sesión con Google"}</span>
+              <span className="home-auth-google-button__label">{isAuthLoading ? "Conectando..." : "Iniciá sesión, jugá y descubrilos!"}</span>
             </BrandButton>
           )}
         </div>

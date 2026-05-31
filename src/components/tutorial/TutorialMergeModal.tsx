@@ -99,7 +99,7 @@ function DesktopDragHint() {
           <path d="M32 10v18" stroke="rgba(255,255,255,0.75)" strokeLinecap="round" strokeWidth="3.2" />
           <rect className="tutorial-merge-modal__mouse-button" x="18" y="10" width="14" height="22" rx="14" fill="rgba(255,255,255,0.16)" />
         </svg>
-        <span className="tutorial-merge-modal__mouse-text">Mantené apretado</span>
+        <span className="tutorial-merge-modal__mouse-text tutorial-merge-modal__mouse-text--desktop">Mantené apretado</span>
       </div>
     </div>
   );
@@ -115,7 +115,6 @@ function FingerIcon() {
         />
         <path d="M24 16.5c0-2 1.7-3.7 3.8-3.7s3.8 1.7 3.8 3.7v20" fill="none" stroke="rgba(255,255,255,0.25)" strokeWidth="2" strokeLinecap="round" />
       </svg>
-      <span className="tutorial-merge-modal__mouse-text">Mantené apretado</span>
     </div>
   );
 }
